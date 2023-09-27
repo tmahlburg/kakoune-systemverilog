@@ -6,18 +6,18 @@ hook global WinCreate .*\.(sv|svh) %{
 }
 
 # Set up comments
-hook global WinSetOption filetype=verilog %{
+hook global WinSetOption filetype=systemverilog %{
 	set-option window comment_block_begin /*
 	set-option window comment_block_end */
 	set-option window comment_line //
 }
 
 # Highlighting
-add-highlighter shared/verilog regions
-add-highlighter shared/verilog/code default-region group
-add-highlighter shared/verilog/string region '"' (?<!\\)(\\\\)*" fill string
-add-highlighter shared/verilog/comment_line region '//' $ fill comment
-add-highlighter shared/verilog/comment region /\* \*/ fill comment
+add-highlighter shared/systemverilog regions
+add-highlighter shared/systemverilog/code default-region group
+add-highlighter shared/systemverilog/string region '"' (?<!\\)(\\\\)*" fill string
+add-highlighter shared/systemverilog/comment_line region '//' $ fill comment
+add-highlighter shared/systemverilog/comment region /\* \*/ fill comment
 
 evaluate-commands %sh{
     keywords='@ assign automatic break cell constraint continue deassign default defparam design disable dist edge fork final genvar ifnone incdir import inside instance join join_any join_none liblist library localparam mailbox modport negedge noshowcancelled parameter posedge primitive priority pulsestyle_ondetect pulsestyle_oneventi rand randc release return scalared semaphore showcancelled solve specparam strength table tri tri0 tri1 triand trior unique use vectored wait'
@@ -30,26 +30,26 @@ evaluate-commands %sh{
     join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }
 
     # Add the language's grammar to the static completion list
-    printf %s\\n "hook global WinSetOption 'filetype=verilog' %{ set-option window static_words $(join "${keywords} ${blocks} ${declarations} ${gates} ${symbols} ${system_tasks}" ' ') }"
+    printf %s\\n "hook global WinSetOption 'filetype=systemverilog' %{ set-option window static_words $(join "${keywords} ${blocks} ${declarations} ${gates} ${symbols} ${system_tasks}" ' ') }"
 
 	# Highlight keywords
     printf %s "
-        add-highlighter shared/verilog/code/ regex \b($(join "${keywords}" '|'))\b 0:keyword
-        add-highlighter shared/verilog/code/ regex \b($(join "${blocks}" '|'))\b 0:attribute
-        add-highlighter shared/verilog/code/ regex \b($(join "${declarations}" '|'))\b 0:type
-        add-highlighter shared/verilog/code/ regex \b($(join "${gates}" '|'))\b 0:builtin
-        add-highlighter shared/verilog/code/ regex \b($(join "${symbols}" '|'))\b 0:operator
+        add-highlighter shared/systemverilog/code/ regex \b($(join "${keywords}" '|'))\b 0:keyword
+        add-highlighter shared/systemverilog/code/ regex \b($(join "${blocks}" '|'))\b 0:attribute
+        add-highlighter shared/systemverilog/code/ regex \b($(join "${declarations}" '|'))\b 0:type
+        add-highlighter shared/systemverilog/code/ regex \b($(join "${gates}" '|'))\b 0:builtin
+        add-highlighter shared/systemverilog/code/ regex \b($(join "${symbols}" '|'))\b 0:operator
     "
 }
 
-add-highlighter shared/verilog/code/ regex '\$\w+' 0:function
-add-highlighter shared/verilog/code/ regex '`\w+' 0:meta
-add-highlighter shared/verilog/code/ regex "\d+'[bodhBODH][1234567890abcdefABCDEF]+" 0:value
-add-highlighter shared/verilog/code/ regex "(?<=[^a-zA-Z_])\d+" 0:value
+add-highlighter shared/systemverilog/code/ regex '\$\w+' 0:function
+add-highlighter shared/systemverilog/code/ regex '`\w+' 0:meta
+add-highlighter shared/systemverilog/code/ regex "\d+'[bodhBODH][1234567890abcdefABCDEF]+" 0:value
+add-highlighter shared/systemverilog/code/ regex "(?<=[^a-zA-Z_])\d+" 0:value
 
 # Indentation
 
-define-command -hidden verilog-indent-on-new-line %{
+define-command -hidden systemverilog-indent-on-new-line %{
     evaluate-commands -no-hooks -draft -itersel %{
         # preserve previous line indent
         try %{ execute-keys -draft K <a-&> }
@@ -66,11 +66,11 @@ define-command -hidden verilog-indent-on-new-line %{
 
 # Initialization
 
-hook global WinSetOption filetype=verilog %{
-	hook window InsertChar \n -group verilog-indent verilog-indent-on-new-line
-	add-highlighter window/verilog ref verilog
-	hook -once -always window WinSetOption filetype=(?!verilog).* %{
-    	remove-hooks window verilog-indent
+hook global WinSetOption filetype=systemverilog %{
+	hook window InsertChar \n -group systemverilog-indent systemverilog-indent-on-new-line
+	add-highlighter window/systemverilog ref systemverilog
+	hook -once -always window WinSetOption filetype=(?!systemverilog).* %{
+    	remove-hooks window systemverilog-indent
     	remove-highlighter window/c
     }
 }
