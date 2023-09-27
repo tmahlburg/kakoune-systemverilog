@@ -1,8 +1,8 @@
 # Verilog for Kakoune
 
 # Detection
-hook global WinCreate .*\.v %{
-    set-option window filetype verilog
+hook global WinCreate .*\.(sv|svh) %{
+    set-option window filetype systemverilog
 }
 
 # Set up comments
@@ -20,12 +20,12 @@ add-highlighter shared/verilog/comment_line region '//' $ fill comment
 add-highlighter shared/verilog/comment region /\* \*/ fill comment
 
 evaluate-commands %sh{
-    keywords='@ assign automatic cell deassign default defparam design disable edge genvar ifnone incdir instance liblist library localparam negedge noshowcancelled parameter posedge primitive pulsestyle_ondetect pulsestyle_oneventi release scalared showcancelled specparam strength table tri tri0 tri1 triand trior use vectored wait'
-    blocks='always case casex casez else endcase for forever if repeat while begin config end endconfig endfunction endgenerate endmodule endprimitive endspecify endtable endtask fork function generate initial join macromodule module specify task'
-    declarations='event inout input integer output real realtime reg signed time trireg unsigned wand wor wire'
+    keywords='@ assign automatic break cell constraint continue deassign default defparam design disable dist edge fork final genvar ifnone incdir import inside instance join join_any join_none liblist library localparam mailbox modport negedge noshowcancelled parameter posedge primitive priority pulsestyle_ondetect pulsestyle_oneventi rand randc release return scalared semaphore showcancelled solve specparam strength table tri tri0 tri1 triand trior unique use vectored wait'
+    blocks='always always_comb always_latch always_ff case casex casez class endclass else endcase for foreach forever function endfunction if repeat while do begin config end endconfig endfunction endgenerate endmodule endprimitive endspecify endtable endtask fork function generate initial join macromodule module specify task clocking endclocking program endprogram package endpackage interface endinterface'
+    declarations='bit byte chandle enum event inout input int integer logic longint output real realtime reg shortint signed string struct time trireg typedef union unsigned uwire virtual void wand wor wire'
     gates='and or xor nand nor xnor buf not bufif0 notif0 bufif1 notif1 pullup pulldown pmos nmos cmos tran tranif1 tranif0'
-    symbols='+ - = == != !== === ; <= ( )'
-    system_tasks='display write strobe monitor monitoron monitoroff displayb writeb strobeb monitorb displayo writeo strobeo monitoro displayh writeh strobeh monitorh fopen fclose frewind fflush fseek ftell fdisplay fwrite swrite fstrobe fmonitor fread fscanf fdisplayb fwriteb swriteb fstrobeb fmonitorb fdisplayo fwriteo swriteo fstrobeo fmonitoro fdisplayh fwriteh swriteh fstrobeh fmonitorh sscanf sdf_annotate'
+    symbols='+ - = == != !== === ; <= ( ) += -= *= /= %= &= ^= |= <<= >>= <<<= >>>= ++ -- ==? !=? [ ] { } -> ->>'
+    system_tasks='display write strobe monitor monitoron monitoroff displayb writeb strobeb monitorb displayo writeo strobeo monitoro displayh writeh strobeh monitorh fopen fclose frewind fflush fseek ftell fdisplay fwrite swrite fstrobe fmonitor fread fscanf fdisplayb fwriteb swriteb fstrobeb fmonitorb fdisplayo fwriteo swriteo fstrobeo fmonitoro fdisplayh fwriteh swriteh fstrobeh fmonitorh sscanf sdf_annotate srandom urandom urandom_range root bits left right low high increment size dimensions unpacked_dimensions'
 
     join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }
 
@@ -54,7 +54,7 @@ define-command -hidden verilog-indent-on-new-line %{
         # preserve previous line indent
         try %{ execute-keys -draft K <a-&> }
         # indent after start structure
-        try %{ execute-keys -draft k <a-x> <a-k> ^ \h * (always|case|casex|casez|else|for|forever|if|repeat|while|begin|config|fork|function|generate|initial|join|macromodule|module|specify|task)\b|(do\h*$|(.*\h+do(\h+\|[^\n]*\|)?\h*$)) <ret> j <a-gt> }
+        try %{ execute-keys -draft k <a-x> <a-k> ^ \h * (always|case|casex|casez|class|else|for|forever|function|if|repeat|while|begin|config|fork|function|generate|initial|join|macromodule|module|specify|task)\b|(do\h*$|(.*\h+do(\h+\|[^\n]*\|)?\h*$)) <ret> j <a-gt> }
         try %{
           # previous line is empty, next is not
           execute-keys -draft k <a-x> 2X <a-k> \A\n\n[^\n]+\n\z <ret>
